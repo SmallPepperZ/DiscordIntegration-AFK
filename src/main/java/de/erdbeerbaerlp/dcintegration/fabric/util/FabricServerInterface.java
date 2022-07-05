@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.minecraft.command.argument.TextArgumentType;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -119,10 +120,15 @@ public class FabricServerInterface implements ServerInterface {
     }
 
     @Override
-    public HashMap<UUID, String> getPlayers() {
-        final HashMap<UUID, String> players = new HashMap<>();
+    public HashMap<UUID, PlayerData> getPlayers() {
+        final HashMap<UUID, PlayerData> players = new HashMap<>();
+        AbstractTeam team = server.getScoreboard().getTeam("afkDis.afk");
         for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
-            players.put(p.getUuid(), p.getDisplayName().getString().isEmpty() ? p.getName().getString() : p.getDisplayName().getString());
+            PlayerData data = new PlayerData(
+                p.getDisplayName().getString().isEmpty() ? p.getName().getString() : p.getDisplayName().getString(), 
+                p.isTeamPlayer(team)
+            );
+            players.put(p.getUuid(), data);
         }
         return players;
     }
